@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.ZhuyuanDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.bingren_id as bingrenId
+        ,a.insert_time as insertTime
+        ,a.chuangwei_id as chuangweiId
+        ,a.zhuyuan_money as zhuyuanMoney
+        ,a.create_time as createTime
+        ,a.zhuyuan_types as zhuyuanTypes
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.ZhuyuanView" >
+        SELECT
+        <include refid="Base_Column_List" />
+
+--         级联表的字段
+        ,bingren.bingren_name as bingrenName
+        ,bingren.sex_types as sexTypes
+        ,bingren.bingren_age as bingrenAge
+        ,bingren.bingren_phone as bingrenPhone
+        ,bingren.yisheng_id as yishengId
+        ,bingren.huanbing_types as huanbingTypes
+        ,bingren.bingren_content as bingrenContent
+        ,chuangwei.chuangwei_name as chuangweiName
+        ,chuangwei.chuangwei_types as chuangweiTypes
+
+        FROM zhuyuan  a
+        left JOIN bingren bingren ON a.bingren_id = bingren.id
+        left JOIN chuangwei chuangwei ON a.chuangwei_id = chuangwei.id
+
+        <where>
+            <if test="params.bingrenId != null">
+                and a.bingren_id = #{params.bingrenId}
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and DATE_FORMAT(a.insert_time, '%Y-%m-%d %H:%T:%s') >=
+                DATE_FORMAT(#{params.insertTimeStart}, '%Y-%m-%d %H:%T:%s')   ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and DATE_FORMAT(a.insert_time, '%Y-%m-%d %H:%T:%s') <=
+                DATE_FORMAT(#{params.insertTimeEnd} , '%Y-%m-%d %H:%T:%s')    ]]>
+            </if>
+            <if test="params.chuangweiId != null">
+                and a.chuangwei_id = #{params.chuangweiId}
+            </if>
+            <if test="params.zhuyuanMoneyStart != null">
+                <![CDATA[  and a.zhuyuan_money >= #{params.zhuyuanMoneyStart}   ]]>
+            </if>
+            <if test="params.zhuyuanMoneyEnd != null">
+                <![CDATA[  and a.zhuyuan_money <= #{params.zhuyuanMoneyEnd}   ]]>
+            </if>
+
+            <if test=" params.bingrenName != '' and params.bingrenName != null and params.bingrenName != 'null' ">
+                and bingren.bingren_name like CONCAT('%',#{params.bingrenName},'%')
+            </if>
+            <if test="params.sexTypes != null">
+                and bingren.sex_types = #{params.sexTypes}
+            </if>
+
+            <if test="params.bingrenAgeStart != null ">
+                <![CDATA[  and bingren.bingren_age >= #{params.bingrenAgeStart}   ]]>
+            </if>
+            <if test="params.bingrenAgeEnd != null ">
+                <![CDATA[  and bingren.bingren_age <= #{params.bingrenAgeEnd}   ]]>
+            </if>
+            <if test=" params.bingrenPhone != '' and params.bingrenPhone != null and params.bingrenPhone != 'null' ">
+                and bingren.bingren_phone like CONCAT('%',#{params.bingrenPhone},'%')
+            </if>
+            <if test="params.yishengId != null">
+                and bingren.yisheng_id = #{params.yishengId}
+            </if>
+            <if test="params.huanbingTypes != null">
+                and bingren.huanbing_types = #{params.huanbingTypes}
+            </if>
+
+            <if test=" params.bingrenContent != '' and params.bingrenContent != null and params.bingrenContent != 'null' ">
+                and bingren.bingren_content like CONCAT('%',#{params.bingrenContent},'%')
+            </if>
+            <if test=" params.chuangweiName != '' and params.chuangweiName != null and params.chuangweiName != 'null' ">
+                and chuangwei.chuangwei_name like CONCAT('%',#{params.chuangweiName},'%')
+            </if>
+            <if test="params.chuangweiTypes != null">
+                and chuangwei.chuangwei_types = #{params.chuangweiTypes}
+            </if>
+
+        </where>
+        order by a.${params.orderBy} desc
+    </select>
+
+</mapper>

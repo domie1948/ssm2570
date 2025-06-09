@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.BingrenDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.bingren_name as bingrenName
+        ,a.sex_types as sexTypes
+        ,a.bingren_age as bingrenAge
+        ,a.bingren_phone as bingrenPhone
+        ,a.yisheng_id as yishengId
+        ,a.huanbing_types as huanbingTypes
+        ,a.bingren_content as bingrenContent
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.BingrenView" >
+        SELECT
+        <include refid="Base_Column_List" />
+
+--         级联表的字段
+        ,yisheng.yisheng_name as yishengName
+        ,yisheng.sex_types as sexTypes
+        ,yisheng.yisheng_id_number as yishengIdNumber
+        ,yisheng.yisheng_phone as yishengPhone
+        ,yisheng.yisheng_photo as yishengPhoto
+
+        FROM bingren  a
+        left JOIN yisheng yisheng ON a.yisheng_id = yisheng.id
+
+        <where>
+            <if test=" params.bingrenName != '' and params.bingrenName != null and params.bingrenName != 'null' ">
+                and a.bingren_name like CONCAT('%',#{params.bingrenName},'%')
+            </if>
+            <if test="params.sexTypes != null">
+                and a.sex_types = #{params.sexTypes}
+            </if>
+            <if test="params.bingrenAgeStart != null">
+                <![CDATA[  and a.bingren_age >= #{params.bingrenAgeStart}   ]]>
+            </if>
+            <if test="params.bingrenAgeEnd != null">
+                <![CDATA[  and a.bingren_age <= #{params.bingrenAgeEnd}   ]]>
+            </if>
+            <if test=" params.bingrenPhone != '' and params.bingrenPhone != null and params.bingrenPhone != 'null' ">
+                and a.bingren_phone like CONCAT('%',#{params.bingrenPhone},'%')
+            </if>
+            <if test="params.yishengId != null">
+                and a.yisheng_id = #{params.yishengId}
+            </if>
+            <if test="params.huanbingTypes != null">
+                and a.huanbing_types = #{params.huanbingTypes}
+            </if>
+            <if test=" params.bingrenContent != '' and params.bingrenContent != null and params.bingrenContent != 'null' ">
+                and a.bingren_content like CONCAT('%',#{params.bingrenContent},'%')
+            </if>
+
+            <if test=" params.yishengName != '' and params.yishengName != null and params.yishengName != 'null' ">
+                and yisheng.yisheng_name like CONCAT('%',#{params.yishengName},'%')
+            </if>
+            <if test="params.sexTypes != null">
+                and yisheng.sex_types = #{params.sexTypes}
+            </if>
+
+            <if test=" params.yishengIdNumber != '' and params.yishengIdNumber != null and params.yishengIdNumber != 'null' ">
+                and yisheng.yisheng_id_number like CONCAT('%',#{params.yishengIdNumber},'%')
+            </if>
+            <if test=" params.yishengPhone != '' and params.yishengPhone != null and params.yishengPhone != 'null' ">
+                and yisheng.yisheng_phone like CONCAT('%',#{params.yishengPhone},'%')
+            </if>
+        </where>
+        order by a.${params.orderBy} desc
+    </select>
+
+</mapper>
